@@ -45,23 +45,25 @@ if [[ $# -gt 1 ]]; then
 
 fi
 
-arch=$(if [ "$SLICER_ARCH" == "amd64" ]; then echo "x64"; else echo "armv7l"; fi)
+target_arch=$(if [ "$SLICER_ARCH" == "amd64" ]; then echo "x64"; else echo "armv7l"; fi)
 
 if [[ "$1" == "url" ]]; then
-  echo "${releaseInfo}" | jq -r '.assets[] | .browser_download_url | select(test("PrusaSlicer-.+(-\\w)?.linux-" + "$arch" + "-(?!GTK3).+.tar.bz2"))'
+
+  echo "${releaseInfo}" | jq --arg arch "$target_arch" -r '.assets[] | .browser_download_url | select(test("PrusaSlicer-.+(-\\w)?.linux-" + $arch + "-(?!GTK3).+.tar.bz2"))'
 
 elif [[ "$1" == "name" ]]; then
 
-  echo "${releaseInfo}" | jq -r '.assets[] | .name | select(test("PrusaSlicer-.+(-\\w)?.linux-" + "$arch" + "-(?!GTK3).+.tar.bz2"))'
+  echo "${releaseInfo}" | jq --arg arch "$target_arch" -r '.assets[] | .name | select(test("PrusaSlicer-.+(-\\w)?.linux-" + $arch + "-(?!GTK3).+.tar.bz2"))'
+
+elif [[ "$1" == "url_ver" ]]; then
+
+  arch=$(if [ "$SLICER_ARCH" == "amd64" ]; then echo "64"; else echo "armv7l"; fi)
+  # Note: Releases sometimes have hex-encoded ascii characters tacked on
+  # So version '2.0.0+' might need to be requested as '2.0.0%2B' since GitHub returns that as the download URL
+  echo "${allReleases}" | jq --arg VERSION "$VER" -r '.[] | .assets[] | .browser_download_url | select(test("PrusaSlicer-" + $VERSION + "linux64-.+.tar.bz2"))'
+
+elif [[ "$1" == "name_ver" ]]; then
+
+  echo "${allReleases}" | jq --arg VERSION "$VER" -r '.[] | .assets[] | .name | select(test("PrusaSlicer-" + $VERSION + "\\+linux64-.+.tar.bz2"))'
+
 fi
-# elif [[ "$1" == "url_ver" ]]; then
-
-#   # Note: Releases sometimes have hex-encoded ascii characters tacked on
-#   # So version '2.0.0+' might need to be requested as '2.0.0%2B' since GitHub returns that as the download URL
-#   echo "${allReleases}" | jq --arg VERSION "$VER" -r '.[] | .assets[] | .browser_download_url | select(test("PrusaSlicer-" + $VERSION + "linux64-.+.tar.bz2"))'
-
-# elif [[ "$1" == "name_ver" ]]; then
-
-#   echo "${allReleases}" | jq --arg VERSION "$VER" -r '.[] | .assets[] | .name | select(test("PrusaSlicer-" + $VERSION + "\\+linux64-.+.tar.bz2"))'
-
-# fi
