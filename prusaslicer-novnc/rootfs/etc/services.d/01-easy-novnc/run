@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Runs Easy-NoVNC
+# ==============================================================================
+bashio::log.info "Starting Easy-NoVNC..."
+# cd /opt || bashio::exit "Could not change dir."
+exec /usr/local/bin/easy-novnc --addr :4325 --host localhost --port 5900 --no-url-password --novnc-params "resize=remote"

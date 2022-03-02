@@ -1,0 +1,31 @@
+{
+  "name": "PrusaSlicer NoVNC",
+  "slug": "prusaslicer-novnc",
+  "version": "dev",
+  "description": "PrusaSlicer NoVNC",
+  "url": "https://github.com/marciogranzotto/addon-prusaslicer-novnc",
+  "arch": ["armhf", "amd64"],
+  "webui": "[PROTO:ssl]://[HOST]:[PORT:4325]",
+  "startup": "services",
+  "boot": "auto",
+  "hassio_role": "default",
+  "ports": {
+    "4325/tcp": 4325
+  },
+  "ports_description": {
+    "4325/tcp": "NoVNC port"
+  },
+  "map": ["ssl", "config:rw"],
+  "options": {
+    "log_level": "info",
+    "ssl": true,
+    "certfile": "fullchain.pem",
+    "keyfile": "privkey.pem"
+  },
+  "schema": {
+    "log_level": "list(trace|debug|info|notice|warning|error|fatal)?",
+    "ssl": "bool",
+    "certfile": "str",
+    "keyfile": "str"
+  }
+}

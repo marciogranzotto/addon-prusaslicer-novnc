@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Home Assistant Community Add-on: X11
+# Runs X11
+# ==============================================================================
+bashio::log.info "Starting X11 server..."
+# cd /opt || bashio::exit "Could not change dir."
+exec /usr/bin/Xtigervnc -desktop "Prusaslicer" -localhost -rfbport 5900 -SecurityTypes None -AlwaysShared -AcceptKeyEvents -AcceptPointerEvents -AcceptSetDesktopSize -SendCutText -AcceptCutText :0

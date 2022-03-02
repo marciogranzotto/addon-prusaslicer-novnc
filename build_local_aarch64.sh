@@ -1,0 +1,1 @@
+cd prusaslicer-novnc && docker build --build-arg BUILD_FROM="ghcr.io/hassio-addons/debian-base/aarch64:5.2.3" --build-arg BUILD_ARCH=aarch64 --progress plain --no-cache -t prusaslicer-novnc .
