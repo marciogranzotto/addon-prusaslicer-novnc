@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# Home Assistant Community Add-on: X11
+# Home Assistant Add-on: PrusaSlicer NoVNC
 # Runs X11
 # ==============================================================================
 bashio::log.info "Starting X11 server..."
