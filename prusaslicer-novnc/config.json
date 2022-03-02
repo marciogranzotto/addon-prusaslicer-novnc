@@ -4,7 +4,7 @@
   "version": "dev",
   "description": "PrusaSlicer NoVNC",
   "url": "https://github.com/marciogranzotto/addon-prusaslicer-novnc",
-  "arch": ["armhf", "amd64"],
+  "arch": ["armhf", "amd64", "aarch64"],
   "webui": "[PROTO:ssl]://[HOST]:[PORT:4325]",
   "startup": "services",
   "boot": "auto",

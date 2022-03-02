@@ -45,17 +45,15 @@ if [[ $# -gt 1 ]]; then
 
 fi
 
-arch=$(if [ "$SLICER_ARCH" == 'amd64' ]; then echo 'x64'; else echo 'armv7l'; fi)
-testStr="PrusaSlicer-.+(-\\w)?.linux-x64-(?!GTK3).+.tar.bz2
-PrusaSlicer-.+(-\\w)?.linux-$arch-(?!GTK3).+.tar.bz2"
+arch=$(if [ "$SLICER_ARCH" == "amd64" ]; then echo "x64"; else echo "armv7l"; fi)
 
 if [[ "$1" == "url" ]]; then
-  echo "${releaseInfo}" | jq -r ".assets[] | .browser_download_url | select(test('$testStr'))"
+  echo "${releaseInfo}" | jq -r '.assets[] | .browser_download_url | select(test("PrusaSlicer-.+(-\\w)?.linux-" + "$arch" + "-(?!GTK3).+.tar.bz2"))'
 
 elif [[ "$1" == "name" ]]; then
 
-  echo "${releaseInfo}" | jq -r ".assets[] | .name | select(test('$testStr'))"
-
+  echo "${releaseInfo}" | jq -r '.assets[] | .name | select(test("PrusaSlicer-.+(-\\w)?.linux-" + "$arch" + "-(?!GTK3).+.tar.bz2"))'
+fi
 # elif [[ "$1" == "url_ver" ]]; then
 
 #   # Note: Releases sometimes have hex-encoded ascii characters tacked on
