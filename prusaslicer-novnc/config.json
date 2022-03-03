@@ -1,13 +1,22 @@
 {
-  "name": "PrusaSlicer NoVNC",
+  "name": "PrusaSlicer",
   "slug": "prusaslicer-novnc",
   "version": "dev",
   "description": "PrusaSlicer NoVNC",
   "url": "https://github.com/marciogranzotto/addon-prusaslicer-novnc",
-  "arch": ["armhf", "amd64", "aarch64"],
-  "webui": "[PROTO:ssl]://[HOST]:[PORT:4325]",
+  "arch": ["amd64"],
   "startup": "services",
+  "ingress": "true",
+  "ingress_stream": "true",
+  "ingress_port": 4325,
+  "ingress_entry":"vnc.html?autoconnect=true",
+  "panel_icon": "mdi:printer-3d-nozzle",
   "boot": "auto",
+  "hassio_api": true,
+  "homeassistant_api": true,
+  "host_network": true,
+  "auth_api": true,
+  "auto_uart": true,
   "hassio_role": "default",
   "ports": {
     "4325/tcp": 4325
@@ -15,7 +24,7 @@
   "ports_description": {
     "4325/tcp": "NoVNC port"
   },
-  "map": ["ssl", "config:rw"],
+  "map": ["ssl", "config:rw", "media:rw", "share:rw"],
   "options": {
     "log_level": "info",
     "ssl": true,

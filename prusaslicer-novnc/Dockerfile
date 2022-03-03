@@ -1,7 +1,8 @@
 # Get and install Easy noVNC.
-ARG BUILD_FROM
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base/amd64:5.2.3
 
-FROM golang:1.14-buster AS easy-novnc-build
+# hadolint ignore=DL3006
+FROM $BUILD_FROM AS NO_VNC
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -9,14 +10,49 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Build arguments
 ARG BUILD_ARCH
 
-WORKDIR /src
-RUN go mod init build && \
-    go get github.com/geek1011/easy-novnc@v1.1.0 && \
-    go build -o /bin/easy-novnc github.com/geek1011/easy-novnc
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get -y --no-install-recommends install \
+    git
+
+RUN git config --global advice.detachedHead false && \
+    git clone https://github.com/novnc/noVNC.git -b v1.3.0 /noVNC
+
+# hadolint ignore=DL3006
+FROM $BUILD_FROM AS WEBSOCKIFY
+
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get -y --no-install-recommends install \
+    git \
+    python3 \
+    python3-setuptools \
+    python3-numpy \
+    python3-pip
+
+RUN pip3 install --no-cache-dir Cython==0.29.26
+
+# hadolint ignore=DL3003
+RUN git config --global advice.detachedHead false && \
+    git clone https://github.com/novnc/websockify -b v0.10.0 /websockify && \
+    cd /websockify && python3 setup.py install
+
+# hadolint ignore=DL3006
+FROM $BUILD_FROM
+
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get -y --no-install-recommends install \
+    git \
+    python3 \
+    python3-setuptools \
+    python3-numpy \
+    procps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=NO_VNC /noVNC /noVNC
+COPY --from=WEBSOCKIFY /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
+COPY --from=WEBSOCKIFY /usr/local/bin/websockify /usr/local/bin/websockify
 
 # Get TigerVNC and Supervisor for isolating the container.
-# hadolint ignore=DL3006
-FROM ${BUILD_FROM}
 # hadolint ignore=DL3008
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends menu openbox tigervnc-standalone-server supervisor gosu && \
@@ -44,10 +80,6 @@ RUN apt update && apt install -y --no-install-recommends --allow-unauthenticated
 WORKDIR /slic3r
 COPY get_latest_prusaslicer_release.sh /slic3r/
 
-RUN echo "$BUILD_ARCH"
-
-ENV SLICER_ARCH=$BUILD_ARCH
-
 # hadolint ignore=SC2086
 RUN chmod +x /slic3r/get_latest_prusaslicer_release.sh \
   && latestSlic3r=$(/slic3r/get_latest_prusaslicer_release.sh url) \
@@ -55,30 +87,19 @@ RUN chmod +x /slic3r/get_latest_prusaslicer_release.sh \
   && curl -sSL ${latestSlic3r} > ${slic3rReleaseName} \
   && rm -f /slic3r/releaseInfo.json \
   && mkdir -p /slic3r/slic3r-dist \
-#   && tar -xjf ${slic3rReleaseName} -C /slic3r/slic3r-dist --strip-components 1 \
-  && cp /slic3r/${slic3rReleaseName} /slic3r/slic3r-dist/prusa-slicer \
+  && tar -xjf ${slic3rReleaseName} -C /slic3r/slic3r-dist --strip-components 1 \
   && rm -f /slic3r/${slic3rReleaseName} \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get autoclean \
-  && groupadd slic3r \
-  && useradd -g slic3r --create-home --home-dir /home/slic3r slic3r \
   && mkdir -p /slic3r \
   && mkdir -p /configs \
   && mkdir -p /prints/ \
-  # && chown -R slic3r:slic3r /slic3r/ /home/slic3r/ /prints/ /configs/ \
   && chmod +x /slic3r/slic3r-dist/prusa-slicer \
   && locale-gen en_US \
   && mkdir /configs/.local \
   && mkdir -p /configs/.config/ \
-  && mkdir -p /configs/.config/PrusaSlicer/ \
-  && ln -s /configs/.config/ /home/slic3r/ \
-  && mkdir -p /home/slic3r/.config/ \
-  # We can now set the Download directory for Firefox and other browsers.
-  # We can also add /prints/ to the file explorer bookmarks for easy access.
-  && echo "XDG_DOWNLOAD_DIR=\"/prints/\"" >> /home/slic3r/.config/user-dirs.dirs \
-  && echo "file:///prints prints" >> /home/slic3r/.gtk-bookmarks
+  && mkdir -p /configs/.config/PrusaSlicer/
 
-COPY --from=easy-novnc-build /bin/easy-novnc /usr/local/bin/
 # Copy root filesystem
 COPY rootfs /
 
@@ -88,12 +109,6 @@ ARG BUILD_REF
 ARG BUILD_VERSION
 
 COPY menu.xml /etc/xdg/openbox/
-# COPY supervisord.conf /etc/
-# EXPOSE 8080
 
 VOLUME /configs/
 VOLUME /prints/
-
-
-# It's time! Let's get to work! We use /configs/ as a bindable volume for Prusaslicers configurations. We use /prints/ to provide a location for STLs and GCODE files.
-# CMD ["bash", "-c", "chown -R /configs/ /prints/"]

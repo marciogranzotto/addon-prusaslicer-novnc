@@ -5,6 +5,6 @@
 # ==============================================================================
 bashio::net.wait_for 4325
 bashio::log.info "Starting Openbox..."
-# cd /opt || bashio::exit "Could not change dir."
+
 export DISPLAY=:0
 exec /usr/bin/openbox

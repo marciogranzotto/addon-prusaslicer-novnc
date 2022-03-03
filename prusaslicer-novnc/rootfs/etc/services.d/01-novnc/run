@@ -1,9 +1,14 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
 # Home Assistant Add-on: PrusaSlicer NoVNC
-# Runs Easy-NoVNC
+# Runs NoVNC
 # ==============================================================================
-bashio::log.info "Starting Easy-NoVNC..."
+set -e
+
 bashio::net.wait_for 5900
-# cd /opt || bashio::exit "Could not change dir."
-exec /usr/local/bin/easy-novnc --addr :4325 --host localhost --port 5900 --no-url-password --novnc-params "resize=remote"
+
+bashio::log.info 'Starting noVNC...'
+server="localhost:5900"
+bashio::log.info "Connecting to VNC $server"
+# shellcheck disable=SC2086
+exec /noVNC/utils/novnc_proxy --listen 4325 --vnc $server
