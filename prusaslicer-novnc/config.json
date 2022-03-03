@@ -26,15 +26,9 @@
   },
   "map": ["ssl", "config:rw", "media:rw", "share:rw"],
   "options": {
-    "log_level": "info",
-    "ssl": true,
-    "certfile": "fullchain.pem",
-    "keyfile": "privkey.pem"
+    "log_level": "info"
   },
   "schema": {
-    "log_level": "list(trace|debug|info|notice|warning|error|fatal)?",
-    "ssl": "bool",
-    "certfile": "str",
-    "keyfile": "str"
+    "log_level": "list(trace|debug|info|notice|warning|error|fatal)?"
   }
 }

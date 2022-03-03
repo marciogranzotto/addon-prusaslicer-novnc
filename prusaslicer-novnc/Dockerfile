@@ -82,23 +82,19 @@ COPY get_latest_prusaslicer_release.sh /slic3r/
 
 # hadolint ignore=SC2086
 RUN chmod +x /slic3r/get_latest_prusaslicer_release.sh \
-  && latestSlic3r=$(/slic3r/get_latest_prusaslicer_release.sh url) \
-  && slic3rReleaseName=$(/slic3r/get_latest_prusaslicer_release.sh name) \
-  && curl -sSL ${latestSlic3r} > ${slic3rReleaseName} \
-  && rm -f /slic3r/releaseInfo.json \
-  && mkdir -p /slic3r/slic3r-dist \
-  && tar -xjf ${slic3rReleaseName} -C /slic3r/slic3r-dist --strip-components 1 \
-  && rm -f /slic3r/${slic3rReleaseName} \
-  && rm -rf /var/lib/apt/lists/* \
-  && apt-get autoclean \
-  && mkdir -p /slic3r \
-  && mkdir -p /configs \
-  && mkdir -p /prints/ \
-  && chmod +x /slic3r/slic3r-dist/prusa-slicer \
-  && locale-gen en_US \
-  && mkdir /configs/.local \
-  && mkdir -p /configs/.config/ \
-  && mkdir -p /configs/.config/PrusaSlicer/
+    && latestSlic3r=$(/slic3r/get_latest_prusaslicer_release.sh url) \
+    && slic3rReleaseName=$(/slic3r/get_latest_prusaslicer_release.sh name) \
+    && curl -sSL ${latestSlic3r} > ${slic3rReleaseName} \
+    && rm -f /slic3r/releaseInfo.json \
+    && mkdir -p /slic3r/slic3r-dist \
+    && tar -xjf ${slic3rReleaseName} -C /slic3r/slic3r-dist --strip-components 1 \
+    && rm -f /slic3r/${slic3rReleaseName} \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoclean \
+    && mkdir -p /slic3r \
+    && mkdir -p /share/prints/ \
+    && chmod +x /slic3r/slic3r-dist/prusa-slicer \
+    && locale-gen en_US 
 
 # Copy root filesystem
 COPY rootfs /
@@ -109,6 +105,3 @@ ARG BUILD_REF
 ARG BUILD_VERSION
 
 COPY menu.xml /etc/xdg/openbox/
-
-VOLUME /configs/
-VOLUME /prints/
