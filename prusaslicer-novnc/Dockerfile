@@ -81,9 +81,10 @@ WORKDIR /slic3r
 COPY get_latest_prusaslicer_release.sh /slic3r/
 
 # hadolint ignore=SC2086
+ARG SLICER_VERSION="2.5.0-alpha3"
 RUN chmod +x /slic3r/get_latest_prusaslicer_release.sh \
-    && latestSlic3r=$(/slic3r/get_latest_prusaslicer_release.sh url) \
-    && slic3rReleaseName=$(/slic3r/get_latest_prusaslicer_release.sh name) \
+    && latestSlic3r=$(/slic3r/get_latest_prusaslicer_release.sh url name_ver $SLICER_VERSION) \
+    && slic3rReleaseName=$(/slic3r/get_latest_prusaslicer_release.sh name name_ver $SLICER_VERSION) \
     && curl -sSL ${latestSlic3r} > ${slic3rReleaseName} \
     && rm -f /slic3r/releaseInfo.json \
     && mkdir -p /slic3r/slic3r-dist \

@@ -22,7 +22,7 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-baseDir="/slic3r"
+baseDir="~/slic3r"
 mkdir -p $baseDir
 
 if [[ ! -e "$baseDir/latestReleaseInfo.json" ]]; then
